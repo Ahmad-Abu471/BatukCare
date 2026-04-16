@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { PatientData, ScreeningData } from "@/types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || "" });
 
 export const SYSTEM_INSTRUCTION = `
 Anda adalah BatukCare, asisten AI khusus untuk memberikan informasi mengenai penyakit Tuberkulosis (TBC) dan kondisi batuk lainnya.
