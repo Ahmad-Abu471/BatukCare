@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: screenings
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - gender: string (required, enum: ['Laki-laki', 'Perempuan'])
+    //   - age: string (required, 1-10 chars)
+    //   - address: string (required, 1-500 chars)
+    //   - phone: string (required, 1-20 chars)
+    //   - isSuspected: bool (required)
+    //   - conclusion: string (required)
+    //   - explanation: string (optional)
+    //   - recommendations: list (optional)
+    //   - timestamp: timestamp (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidScreening(data) {
+      return data.keys().hasAll(['name', 'gender', 'age', 'address', 'phone', 'isSuspected', 'conclusion', 'timestamp']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.gender in ['Laki-laki', 'Perempuan'] &&
+             data.age is string && data.age.size() > 0 && data.age.size() <= 10 &&
+             data.address is string && data.address.size() > 0 && data.address.size() <= 500 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 20 &&
+             data.isSuspected is bool &&
+             data.conclusion is string &&
+             data.timestamp is timestamp;
+    }
+
+    match /screenings/{screeningId} {
+      // Izinkan publik untuk membuat data skrining (anonim/tanpa login diizinkan untuk kemudahan pasien)
+      // Namun batasi pembacaan hanya untuk admin jika ingin menjaga privasi
+      allow create: if isValidScreening(request.resource.data);
+      
+      // Hanya admin yang bisa melihat semua data (untuk sementara kita izinkan read untuk demo jika belum ada sistem admin)
+      // Di produksi, ini harus dibatasi: allow read: if isAdmin();
+      allow read: if true; 
+    }
+  }
+}

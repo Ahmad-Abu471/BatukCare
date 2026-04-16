@@ -1,0 +1,28 @@
+{
+  "entities": {
+    "Screening": {
+      "title": "Screening",
+      "description": "Data hasil skrining pasien",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nama Lengkap" },
+        "gender": { "type": "string", "description": "Jenis Kelamin" },
+        "age": { "type": "string", "description": "Usia" },
+        "address": { "type": "string", "description": "Alamat" },
+        "phone": { "type": "string", "description": "Nomor Telepon" },
+        "isSuspected": { "type": "boolean", "description": "Terduga TBC" },
+        "conclusion": { "type": "string", "description": "Kesimpulan" },
+        "explanation": { "type": "string", "description": "Penjelasan" },
+        "recommendations": { "type": "array", "items": { "type": "string" }, "description": "Rekomendasi" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Waktu Skrining" }
+      },
+      "required": ["name", "gender", "age", "address", "phone", "isSuspected", "conclusion", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/screenings/{screeningId}": {
+      "schema": "Screening",
+      "description": "Koleksi hasil skrining"
+    }
+  }
+}
