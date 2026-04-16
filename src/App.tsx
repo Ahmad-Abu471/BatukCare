@@ -154,20 +154,43 @@ export default function App() {
   const downloadCSV = () => {
     if (history.length === 0) return;
     
-    const headers = ["Nama", "Jenis Kelamin", "Usia", "Alamat", "No HP", "Kesimpulan", "Tanggal"];
+    const headers = [
+      "Tanggal", 
+      "Nama", 
+      "L/P", 
+      "Usia", 
+      "Alamat", 
+      "No HP", 
+      "Batuk", 
+      "Durasi", 
+      "Demam", 
+      "Keringat Malam", 
+      "BB Turun", 
+      "Nyeri Dada", 
+      "Kontak TBC", 
+      "Kesimpulan"
+    ];
+    
     const rows = history.map(h => [
+      h.timestamp,
       h.name,
       h.gender,
       h.age,
       h.address,
       h.phone,
-      h.conclusion,
-      h.timestamp
+      h.hasCough ? "Ya" : "Tidak",
+      h.coughDuration || "-",
+      h.hasFever ? "Ya" : "Tidak",
+      h.hasNightSweat ? "Ya" : "Tidak",
+      h.hasWeightLoss ? "Ya" : "Tidak",
+      h.hasChestPain ? "Ya" : "Tidak",
+      h.hasHistoryContact ? "Ya" : "Tidak",
+      h.conclusion
     ]);
 
     const csvContent = [
       headers.join(","),
-      ...rows.map(r => r.map(cell => `"${cell}"`).join(","))
+      ...rows.map(r => r.map(cell => `"${cell || ""}"`).join(","))
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -308,6 +331,83 @@ export default function App() {
                 </Button>
               </div>
             )}
+            {user?.email === OWNER_EMAIL && (
+              <Dialog>
+                <DialogTrigger render={
+                  <Button variant="outline" className="hidden h-11 border-blue-200 text-blue-600 hover:bg-blue-50 md:flex">
+                    <Activity className="mr-2 h-4 w-4" />
+                    Database
+                  </Button>
+                } />
+                <DialogContent className="max-w-4xl max-h-[90vh]">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <ShieldCheck className="text-blue-600" />
+                      Database Skrining Pasien
+                    </DialogTitle>
+                    <DialogDescription>
+                      Daftar rekaman skrining mandiri yang telah dilakukan oleh pengguna.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="mt-4 flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">
+                        Total: {history.length} Data
+                      </Badge>
+                      <Button size="sm" onClick={downloadCSV} className="bg-green-600 hover:bg-green-700">
+                        Unduh Excel (.csv)
+                      </Button>
+                    </div>
+
+                    <ScrollArea className="h-[60vh] rounded-xl border bg-white">
+                      <div className="min-w-[800px] p-4 text-slate-800">
+                        <table className="w-full text-left text-xs">
+                          <thead className="sticky top-0 bg-slate-50 font-bold text-slate-500 uppercase tracking-wider border-b">
+                            <tr>
+                              <th className="p-3">Tanggal</th>
+                              <th className="p-3">Nama</th>
+                              <th className="p-3">L/P</th>
+                              <th className="p-3">Usia</th>
+                              <th className="p-3">Alamat</th>
+                              <th className="p-3">No HP</th>
+                              <th className="p-3">Hasil</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {history.map((row, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                                <td className="p-3 text-slate-500">{row.timestamp}</td>
+                                <td className="p-3 font-bold text-slate-800">{row.name}</td>
+                                <td className="p-3">{row.gender}</td>
+                                <td className="p-3">{row.age}</td>
+                                <td className="p-3 max-w-[150px] truncate">{row.address}</td>
+                                <td className="p-3">{row.phone}</td>
+                                <td className="p-3">
+                                  <Badge className={cn(
+                                    "text-[10px]",
+                                    row.isSuspected ? "bg-red-100 text-red-700 border-none" : "bg-green-100 text-green-700 border-none"
+                                  )}>
+                                    {row.isSuspected ? "Suspek TBC" : "Normal"}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {history.length === 0 && (
+                          <div className="flex flex-col items-center justify-center p-20 text-slate-400">
+                            <Info size={40} className="mb-2 opacity-20" />
+                            <p>Belum ada data skrinning.</p>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+
             <Dialog open={isScreeningOpen} onOpenChange={(open) => {
               setIsScreeningOpen(open);
               if (!open) resetScreening();
