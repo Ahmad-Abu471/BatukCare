@@ -111,8 +111,12 @@ export default function App() {
         setLoginError("Jendela login ditutup sebelum selesai. Silakan coba lagi.");
       } else if (error.code === 'auth/blocked-at-popup-request') {
         setLoginError("Popup diblokir oleh browser. Izinkan popup untuk login.");
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setLoginError("Domain ini belum terdaftar di Firebase. Hubungi admin.");
+      } else if (error.code === 'auth/network-request-failed') {
+        setLoginError("Koneksi internet bermasalah. Coba lagi nanti.");
       } else {
-        setLoginError("Gagal login. Pastikan koneksi internet stabil.");
+        setLoginError(`Login gagal: ${error.code || "Terjadi kesalahan sistem"}`);
       }
     } finally {
       setIsLoggingIn(false);
